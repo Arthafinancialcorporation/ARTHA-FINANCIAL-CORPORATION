@@ -107,7 +107,12 @@ form.addEventListener('submit', async event => {
   submitButton.disabled = true;
   status.textContent = 'Sending your enquiry…';
   try {
-    enquiryReference ??= 'ARTHA-' + crypto.randomUUID().toUpperCase();
+    if (!enquiryReference) {
+      const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const bytes = crypto.getRandomValues(new Uint8Array(8));
+      const code = Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
+      enquiryReference = 'ARTHA-ENQ-' + code.slice(0, 4) + '-' + code.slice(4);
+    }
     data.set('enquiry_reference', enquiryReference);
     const response = await fetch(form.action, {
       method: 'POST', body: data, headers: { Accept: 'application/json' }
